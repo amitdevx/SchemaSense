@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import get_settings
 from utils.database import db
-from routes import tables, chat, chat_stream, export, auth, connection, dashboard, profile, settings as settings_routes, integrations, cache as cache_routes
-from utils.cache_db import init_cache
+from routes import tables, chat, chat_stream, export, auth, connection, dashboard, profile, settings as settings_routes, integrations, cache as cache_routes, activity
+from utils.cache_db import init_cache, init_chat_cache
 
 # Setup logging
 logging.basicConfig(
@@ -25,6 +25,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting SchemaSense Backend...")
     logger.info(f"Binding to {settings.API_HOST}:{settings.API_PORT}")
     await init_cache()
+    await init_chat_cache()
     logger.info("Backend ready! (Database connection will be established per user via /api/connect-db)")
     
     yield
@@ -67,6 +68,7 @@ app.include_router(profile.router)
 app.include_router(settings_routes.router)
 app.include_router(integrations.router)
 app.include_router(cache_routes.router)
+app.include_router(activity.router)
 
 # ===== Root Routes =====
 

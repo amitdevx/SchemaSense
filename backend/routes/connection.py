@@ -5,6 +5,7 @@ import logging
 import uuid
 from typing import Dict, Optional, List
 from datetime import datetime
+from utils.activity import log_activity, ActivityType
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["connection"])
@@ -217,6 +218,13 @@ async def connect_database(request: ConnectionRequest, response: Response):
         
         logger.info(f"Connected [{conn_id}] ({request.database_type}): {request.host}:{request.port}/{request.database}")
         
+        log_activity(
+            ActivityType.DATABASE_CONNECTED,
+            f"Connected to {conn_name}",
+            f"Database {request.database} on {request.host}:{request.port} ({request.database_type})",
+            {"connection_id": conn_id, "database": request.database, "host": request.host}
+        )
+        
         # Set a cookie
         response.set_cookie(
             key="db_connected", value="true",
@@ -295,6 +303,12 @@ async def activate_connection(connection_id: str):
     active_connection_id = connection_id
     _sync_user_db_connection()
     logger.info(f"Activated connection: {connection_id}")
+    log_activity(
+        ActivityType.DATABASE_ACTIVATED,
+        f"Activated {connections[connection_id].get('name', connection_id)}",
+        f"Switched active database to {connections[connection_id]['database']}",
+        {"connection_id": connection_id}
+    )
     return {"success": True, "message": f"Connection '{connection_id}' is now active", "active_id": connection_id}
 
 @router.delete("/connections/{connection_id}")
@@ -322,6 +336,12 @@ async def remove_connection(connection_id: str):
         _sync_user_db_connection()
     
     logger.info(f"Removed connection: {connection_id}")
+    log_activity(
+        ActivityType.DATABASE_DISCONNECTED,
+        f"Disconnected database",
+        f"Removed database connection {connection_id}",
+        {"connection_id": connection_id}
+    )
     return {"success": True, "message": "Connection removed", "active_id": active_connection_id}
 
 @router.post("/disconnect-db")

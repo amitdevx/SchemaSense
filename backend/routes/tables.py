@@ -5,6 +5,7 @@ from schemas import TablesList, TableSchema, ColumnSchema, TableQuality, ColumnQ
 from utils.deepseek_client import deepseek_client
 from utils.schema_queries import get_sample_query, get_count_query, get_count_alias_query, get_null_stats_query
 from utils.cache_db import get_cached_explanation, store_explanation
+from utils.activity import log_activity, ActivityType
 from datetime import datetime
 import logging
 
@@ -192,6 +193,13 @@ async def get_data_quality(table_name: str, connection_id: Optional[str] = None)
             overall_score=round(overall_score, 1)
         )
         
+        log_activity(
+            ActivityType.ANALYSIS_RUN,
+            f"Quality analysis: {table_name}",
+            f"Data quality score: {quality_grade} ({round(avg_completeness, 1)}% completeness)",
+            {"table_name": table_name, "grade": quality_grade}
+        )
+        
         return TableQuality(
             table_name=table_name,
             row_count=total_count,
@@ -270,6 +278,13 @@ async def explain_table(table_name: str, connection_id: Optional[str] = None):
                 explanation=explanation,
                 row_count=schema_info.row_count,
             )
+        
+        log_activity(
+            ActivityType.TABLE_EXPLAINED,
+            f"AI explained: {table_name}",
+            f"Generated AI business explanation for {table_name}",
+            {"table_name": table_name}
+        )
         
         return TableExplanation(
             table_name=table_name,

@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from schemas import ChatRequest
-from routes.connection import get_user_db, get_db_pool, get_schema_filter_for, get_db_type
+from routes.connection import get_user_db, get_db_pool, get_schema_filter_for, get_db_type, get_connection_details
 from utils.deepseek_client import deepseek_client
 from utils.schema_queries import get_count_query
+from utils.activity import log_activity, ActivityType
+from utils.cache_db import get_cached_chat_response, store_chat_response
 import logging
 import json
 from typing import Optional
@@ -26,6 +28,30 @@ async def chat_with_schema_streaming(request: ChatStreamRequest):
     try:
         db = get_db_pool(request.connection_id) if request.connection_id else get_user_db()
         
+        # Check cache first
+        conn_details = get_connection_details(request.connection_id)
+        if conn_details:
+            cached = await get_cached_chat_response(
+                host=conn_details["host"],
+                port=conn_details["port"],
+                database=conn_details["database"],
+                schema_filter=conn_details["schema_filter"],
+                user=conn_details["user"],
+                question=request.question,
+            )
+            if cached:
+                log_activity(
+                    ActivityType.CHAT_QUERY,
+                    "Chat query (cached)",
+                    f"Asked: {request.question[:80]}{'...' if len(request.question) > 80 else ''}",
+                    {"question": request.question[:200], "cached": True}
+                )
+                async def cached_response():
+                    yield json.dumps({"type": "status", "message": "⚡ Found cached response..."}) + "\n"
+                    yield json.dumps({"type": "content", "data": cached}) + "\n"
+                    yield json.dumps({"type": "done"}) + "\n"
+                return StreamingResponse(cached_response(), media_type="application/x-ndjson")
+        
         # Build comprehensive context from all tables
         async with db.acquire() as conn:
             tables_query = """
@@ -40,7 +66,6 @@ async def chat_with_schema_streaming(request: ChatStreamRequest):
             context = "DATABASE SCHEMA:\n"
             db_type = get_db_type(request.connection_id)
             for table_name in table_names:
-                # Get row count
                 count_query = get_count_query(table_name, db_type)
                 count_result = await conn.fetchval(count_query)
                 
@@ -54,22 +79,41 @@ async def chat_with_schema_streaming(request: ChatStreamRequest):
         
         async def stream_response():
             """Generator that streams response chunks"""
-            # Send initial status that appears in blue box
+            log_activity(
+                ActivityType.CHAT_QUERY,
+                "Chat query (streaming)",
+                f"Asked: {request.question[:80]}{'...' if len(request.question) > 80 else ''}",
+                {"question": request.question[:200]}
+            )
             yield json.dumps({"type": "status", "message": "🤖 Connecting to AI..."}) + "\n"
             yield json.dumps({"type": "status", "message": "📊 Analyzing your database..."}) + "\n"
             yield json.dumps({"type": "status", "message": "🔍 Processing your question..."}) + "\n"
             yield json.dumps({"type": "status", "message": "⚡ Generating response..."}) + "\n"
             
             try:
-                # Stream the actual response content (without progress messages)
+                full_response = ""
                 async for chunk in deepseek_client.stream_chat_about_schema(
                     question=request.question,
                     context=context
                 ):
-                    # Send content chunks directly (no status messages mixed in)
+                    full_response += chunk
                     yield json.dumps({"type": "content", "data": chunk}) + "\n"
                 
-                # Completion signal
+                # Store in cache for future requests
+                if conn_details and full_response:
+                    try:
+                        await store_chat_response(
+                            host=conn_details["host"],
+                            port=conn_details["port"],
+                            database=conn_details["database"],
+                            schema_filter=conn_details["schema_filter"],
+                            user=conn_details["user"],
+                            question=request.question,
+                            response=full_response,
+                        )
+                    except Exception as cache_err:
+                        logger.warning(f"Failed to cache chat response: {cache_err}")
+                
                 yield json.dumps({"type": "done"}) + "\n"
             except Exception as e:
                 logger.error(f"Streaming error: {e}")
@@ -77,7 +121,7 @@ async def chat_with_schema_streaming(request: ChatStreamRequest):
         
         return StreamingResponse(
             stream_response(),
-            media_type="application/x-ndjson"  # Newline-delimited JSON
+            media_type="application/x-ndjson"
         )
     
     except HTTPException:

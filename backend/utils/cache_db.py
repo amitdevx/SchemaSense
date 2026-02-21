@@ -160,3 +160,81 @@ async def clear_cache():
     """Remove all cached explanations."""
     await asyncio.to_thread(_sync_clear)
     logger.info("Cache cleared")
+
+
+# ── Chat response caching ────────────────────────────────────────────────
+
+def _init_chat_table():
+    """Create the chat cache table if it doesn't exist."""
+    conn = _get_conn()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS chat_response_cache (
+            cache_key      TEXT PRIMARY KEY,
+            question       TEXT NOT NULL,
+            response       TEXT NOT NULL,
+            created_at     TEXT DEFAULT (datetime('now')),
+            accessed_count INTEGER DEFAULT 0,
+            last_accessed  TEXT DEFAULT (datetime('now'))
+        )
+    """)
+    conn.commit()
+    logger.info("Chat cache table initialized")
+
+
+def _sync_get_chat(cache_key: str) -> Optional[str]:
+    conn = _get_conn()
+    row = conn.execute(
+        "SELECT response FROM chat_response_cache WHERE cache_key = ?",
+        (cache_key,),
+    ).fetchone()
+    if row:
+        conn.execute(
+            "UPDATE chat_response_cache SET accessed_count = accessed_count + 1, last_accessed = datetime('now') WHERE cache_key = ?",
+            (cache_key,),
+        )
+        conn.commit()
+        return row["response"]
+    return None
+
+
+def _sync_store_chat(cache_key: str, question: str, response: str):
+    conn = _get_conn()
+    conn.execute("""
+        INSERT INTO chat_response_cache (cache_key, question, response, created_at, accessed_count, last_accessed)
+        VALUES (?, ?, ?, datetime('now'), 0, datetime('now'))
+        ON CONFLICT(cache_key) DO UPDATE SET
+            response = excluded.response,
+            last_accessed = datetime('now')
+    """, (cache_key, question, response))
+    conn.commit()
+
+
+async def init_chat_cache():
+    """Initialize chat cache table (call at startup)."""
+    await asyncio.to_thread(_init_chat_table)
+
+
+async def get_cached_chat_response(
+    host: str, port: int, database: str, schema_filter: str,
+    user: str, question: str,
+) -> Optional[str]:
+    """Look up a cached chat response."""
+    db_hash = generate_database_hash(host, port, database, schema_filter, user)
+    q_hash = generate_structure_hash(question.strip().lower())
+    key = f"chat#{db_hash}#{q_hash}"
+    result = await asyncio.to_thread(_sync_get_chat, key)
+    if result:
+        logger.info(f"Chat cache HIT for question (key={key[:20]}…)")
+    return result
+
+
+async def store_chat_response(
+    host: str, port: int, database: str, schema_filter: str,
+    user: str, question: str, response: str,
+):
+    """Store a chat response in the cache."""
+    db_hash = generate_database_hash(host, port, database, schema_filter, user)
+    q_hash = generate_structure_hash(question.strip().lower())
+    key = f"chat#{db_hash}#{q_hash}"
+    await asyncio.to_thread(_sync_store_chat, key, question, response)
+    logger.info(f"Cached chat response (key={key[:20]}…)")

@@ -4,6 +4,7 @@ from typing import Optional
 from schemas import ChatRequest, ChatResponse
 from routes.connection import get_user_db, get_db_pool, get_schema_filter_for
 from utils.deepseek_client import deepseek_client
+from utils.activity import log_activity, ActivityType
 import logging
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,13 @@ async def chat_with_schema(request: ChatRequestWithConnection):
         answer = await deepseek_client.chat_about_schema(
             question=request.question,
             context=context
+        )
+        
+        log_activity(
+            ActivityType.CHAT_QUERY,
+            "Chat query",
+            f"Asked: {request.question[:80]}{'...' if len(request.question) > 80 else ''}",
+            {"question": request.question[:200]}
         )
         
         return ChatResponse(

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from routes import connection as conn_module
 from routes.connection import get_user_db, get_db_pool, get_schema_filter_for
+from utils.activity import get_analyses_count
 from pydantic import BaseModel
 import logging
 
@@ -116,7 +117,7 @@ async def get_statistics():
         return {
             "connectedDatabases": len(conn_module.connections),
             "totalTables": total_tables,
-            "analysesRun": len(conn_module.connections)
+            "analysesRun": get_analyses_count()
         }
     except HTTPException:
         raise
