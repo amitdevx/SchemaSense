@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation"
 import { BarChart3, MessageSquare, Settings, User, CreditCard, Download, Database, LogOut, Menu, X } from "lucide-react"
 import { useState } from "react"
 import { LeLoLogo } from "./lelo-logo"
-import { useAuth } from "@/hooks/useAuth"
 
 const navigationItems = [
   {
@@ -64,13 +63,13 @@ const settingsItems = [
 export function DashboardSidebar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
-  const { logout } = useAuth()
 
   const isActive = (href: string) => pathname === href
 
   const handleLogout = () => {
-    logout()
     if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('current_user')
       window.location.href = '/'
     }
   }
