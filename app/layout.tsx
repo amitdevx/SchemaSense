@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "SchemaSense - AI Database Intelligence Platform",
   description: "Understand your database instantly with AI-powered schema analysis and conversational documentation.",
   generator: "v0.app",
+  icons: {
+    icon: "/icon.svg",
+  },
 }
 
 export default function RootLayout({
