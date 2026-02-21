@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart3, MessageSquare, Settings, User, CreditCard, Download, Database, LogOut, Menu, X } from "lucide-react"
+import { BarChart3, MessageSquare, Settings, User, CreditCard, Download, Database, LogOut, Menu, X, Activity } from "lucide-react"
 import { useState } from "react"
 import { LeLoLogo } from "./lelo-logo"
 
@@ -30,6 +30,12 @@ const navigationItems = [
     href: "/dashboard/integrations",
     icon: Database,
     description: "Manage databases",
+  },
+  {
+    label: "Recent Activity",
+    href: "/dashboard/activity",
+    icon: Activity,
+    description: "View recent actions",
   },
   {
     label: "Exports",
