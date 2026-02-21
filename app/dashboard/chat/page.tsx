@@ -82,17 +82,17 @@ export default function ChatPage() {
                 className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                  className={`px-4 py-3 rounded-lg ${
                     message.sender === "user"
-                      ? "bg-white text-black"
-                      : "bg-white/10 border border-white/20 text-white"
+                      ? "max-w-xs lg:max-w-md bg-white text-black"
+                      : "max-w-full lg:max-w-2xl bg-white/10 border border-white/20 text-white"
                   }`}
                 >
                   {message.sender === "user" ? (
                     <p className="text-sm leading-relaxed">{message.text}</p>
                   ) : (
-                    <div className="text-sm leading-relaxed max-w-md">
-                      <MarkdownRenderer content={message.text} className="text-gray-300" />
+                    <div className="text-sm leading-relaxed">
+                      <MarkdownRenderer content={message.text} />
                     </div>
                   )}
                   <p
