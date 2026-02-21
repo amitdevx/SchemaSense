@@ -4,14 +4,15 @@
 import { Breadcrumb } from "@/components/breadcrumb"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Database, Settings, MessageSquare, FileText, BarChart3, Plus, Clock, ArrowRight, Download, Loader, Trash2, CheckCircle } from "lucide-react"
-import { useStatistics, useConnectionInfo, useConnections } from "@/hooks/useDashboard"
+import { Database, Settings, MessageSquare, FileText, BarChart3, Plus, Clock, ArrowRight, Download, Loader, Trash2, CheckCircle, Activity } from "lucide-react"
+import { useStatistics, useConnectionInfo, useConnections, useRecentActivity } from "@/hooks/useDashboard"
 import { useState, useRef, useCallback } from "react"
 
 export default function DashboardPage() {
   const { data: stats, loading: statsLoading } = useStatistics()
   const { data: connectionInfo, loading: connLoading } = useConnectionInfo()
   const { data: allConnections, loading: connsLoading, error: connsError, activateConnection, removeConnection, refetch: refetchConns } = useConnections()
+  const { data: recentActivity, loading: activityLoading } = useRecentActivity(10)
   const [autoSyncFreq, setAutoSyncFreq] = useState("never")
   const [schemaFilter, setSchemaFilter] = useState("public, analytics")
   const [includeSysTables, setIncludeSysTables] = useState(false)
@@ -257,6 +258,68 @@ export default function DashboardPage() {
               </div>
               <p className="text-sm text-gray-400">Analyses Run</p>
             </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white">Recent Activity</h2>
+                <p className="text-sm text-gray-400 mt-1">Latest actions and events across your databases</p>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Activity className="w-4 h-4" />
+                Auto-refreshes
+              </div>
+            </div>
+
+            {activityLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader className="w-6 h-6 text-white animate-spin" />
+              </div>
+            ) : recentActivity.length > 0 ? (
+              <div className="space-y-3">
+                {recentActivity.map((item) => {
+                  const activityIcons: Record<string, React.ReactNode> = {
+                    database_connected: <Database className="w-4 h-4 text-green-400" />,
+                    database_disconnected: <Database className="w-4 h-4 text-red-400" />,
+                    database_activated: <CheckCircle className="w-4 h-4 text-blue-400" />,
+                    chat_query: <MessageSquare className="w-4 h-4 text-purple-400" />,
+                    analysis_run: <BarChart3 className="w-4 h-4 text-yellow-400" />,
+                    schema_viewed: <BarChart3 className="w-4 h-4 text-cyan-400" />,
+                    table_explained: <MessageSquare className="w-4 h-4 text-orange-400" />,
+                    export_generated: <Download className="w-4 h-4 text-emerald-400" />,
+                  }
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-lg p-4 hover:border-white/20 transition-all duration-300"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          {activityIcons[item.type] || <Activity className="w-4 h-4 text-gray-400" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white">{item.title}</p>
+                          <p className="text-xs text-gray-400 mt-0.5 truncate">{item.description}</p>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
+                          <Clock className="w-3 h-3" />
+                          {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="bg-white/5 border border-white/10 rounded-xl p-8 text-center">
+                <Activity className="w-12 h-12 text-white/30 mx-auto mb-4" />
+                <p className="text-gray-400 mb-2">No recent activity</p>
+                <p className="text-xs text-gray-500">Connect a database and start analyzing to see activity here</p>
+              </div>
+            )}
           </div>
 
           {/* Sync Settings */}

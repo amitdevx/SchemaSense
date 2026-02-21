@@ -185,6 +185,47 @@ export interface ConnectionInfo {
   message?: string;
 }
 
+export interface ActivityItem {
+  id: number;
+  type: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  metadata: Record<string, any>;
+}
+
+/**
+ * Hook to fetch recent activity
+ */
+export function useRecentActivity(limit: number = 10) {
+  const [data, setData] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchActivity = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result: any = await api.getRecentActivity(limit);
+      setData(result.activities || []);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to fetch activity');
+      console.error('Error fetching activity:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [limit]);
+
+  useEffect(() => {
+    fetchActivity();
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchActivity, 30000);
+    return () => clearInterval(interval);
+  }, [fetchActivity]);
+
+  return { data, loading, error, refetch: fetchActivity };
+}
+
 /**
  * Hook to fetch connection information
  */

@@ -204,4 +204,7 @@ export const api = {
   testIntegration: (id: string) => apiCall(`/integrations/${id}/test`, { method: 'POST' }),
 
   healthCheck: () => apiCall('/health', { includeAuth: false }),
+
+  // Activity
+  getRecentActivity: (limit: number = 20) => apiCall(`/activity/recent?limit=${limit}`),
 };
