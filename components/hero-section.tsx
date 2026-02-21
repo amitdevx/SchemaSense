@@ -29,7 +29,7 @@ export function HeroSection() {
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="/dashboard/analysis">
+            <Link href="/connect-database">
               <Button size="lg" variant="outline" className="border-gray-600 text-white hover:bg-gray-800 bg-transparent">
                 View Live Demo
               </Button>
