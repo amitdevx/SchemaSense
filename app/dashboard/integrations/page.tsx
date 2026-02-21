@@ -4,12 +4,23 @@
 import { Breadcrumb } from "@/components/breadcrumb"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Database, Settings, Trash2, CheckCircle2, AlertCircle, Clock, Plus, Loader, Play, CheckCircle } from "lucide-react"
+import { Database, Settings, Trash2, CheckCircle2, AlertCircle, Clock, Plus, Loader, Play, CheckCircle, Lock } from "lucide-react"
 import { useConnections } from "@/hooks/useDashboard"
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { api } from "@/lib/api-client"
 
+const FEATURE_DISABLED = true // Set to false to enable integrations
+
 export default function IntegrationsPage() {
+  const [showDisabledMessage, setShowDisabledMessage] = useState(FEATURE_DISABLED)
+
+  useEffect(() => {
+    if (FEATURE_DISABLED) {
+      setShowDisabledMessage(true)
+      const timer = setTimeout(() => setShowDisabledMessage(false), 6000)
+      return () => clearTimeout(timer)
+    }
+  }, [])
   const { data: allConnections, activeId, loading, refetch, activateConnection, removeConnection } = useConnections()
   const [testing, setTesting] = useState<string | null>(null)
   const [disconnecting, setDisconnecting] = useState<string | null>(null)
@@ -23,6 +34,10 @@ export default function IntegrationsPage() {
   }, [])
 
   const handleTestIntegration = async (integrationId: string) => {
+    if (FEATURE_DISABLED) {
+      showMessage('error', 'This feature is currently unavailable. Please upgrade your plan.')
+      return
+    }
     try {
       setTesting(integrationId)
       setMessage(null)
@@ -37,6 +52,10 @@ export default function IntegrationsPage() {
   }
 
   const handleDisconnect = async (integrationId: string) => {
+    if (FEATURE_DISABLED) {
+      showMessage('error', 'This feature is currently unavailable. Please upgrade your plan.')
+      return
+    }
     if (!confirm("Are you sure you want to disconnect this database?")) return
     
     try {
@@ -53,6 +72,10 @@ export default function IntegrationsPage() {
   }
 
   const handleActivate = async (integrationId: string) => {
+    if (FEATURE_DISABLED) {
+      showMessage('error', 'This feature is currently unavailable. Please upgrade your plan.')
+      return
+    }
     try {
       await activateConnection(integrationId)
       showMessage('success', 'Database set as active!')
@@ -73,12 +96,20 @@ export default function IntegrationsPage() {
             <p className="text-gray-400">Manage your connected databases</p>
           </div>
           <Link href="/connect-database">
-            <Button className="bg-white hover:bg-gray-200 text-black font-semibold flex items-center gap-2">
+            <Button disabled={FEATURE_DISABLED} className="bg-white hover:bg-gray-200 text-black font-semibold flex items-center gap-2 disabled:opacity-50">
               <Plus className="w-4 h-4" />
               Add Database
             </Button>
           </Link>
         </div>
+
+        {/* Feature Disabled Message */}
+        {showDisabledMessage && FEATURE_DISABLED && (
+          <div className="p-4 rounded-lg mb-6 bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 flex items-center gap-3">
+            <Lock className="w-5 h-5 flex-shrink-0" />
+            <span>This feature is currently unavailable. Please upgrade your plan to access integrations.</span>
+          </div>
+        )}
 
         {/* Success/Error Messages */}
         {message && (

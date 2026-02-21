@@ -3,19 +3,36 @@
 
 import { Breadcrumb } from "@/components/breadcrumb"
 import { Button } from "@/components/ui/button"
-import { Download, FileJson, FileText, File, Trash2, Clock, Loader } from "lucide-react"
+import { Download, FileJson, FileText, File, Trash2, Clock, Loader, Lock } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useTables } from "@/hooks/useDatabase"
 import { useConnections } from "@/hooks/useDashboard"
 import { DatabaseSelector } from "@/components/database-selector"
 import { api } from "@/lib/api-client"
 
+const FEATURE_DISABLED = true // Set to false to enable exports
+
 export default function ExportsPage() {
+  const [showDisabledMessage, setShowDisabledMessage] = useState(FEATURE_DISABLED)
+
+  useEffect(() => {
+    if (FEATURE_DISABLED) {
+      setShowDisabledMessage(true)
+      const timer = setTimeout(() => setShowDisabledMessage(false), 6000)
+      return () => clearTimeout(timer)
+    }
+  }, [])
   const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null)
   const { data: tablesData, loading } = useTables(selectedConnectionId)
   const [exporting, setExporting] = useState<string | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   const handleExport = async (tableName: string, format: 'json' | 'markdown') => {
+    if (FEATURE_DISABLED) {
+      setMessage({ type: 'error', text: 'This feature is currently unavailable. Please upgrade your plan.' })
+      setTimeout(() => setMessage(null), 6000)
+      return
+    }
     setExporting(`${tableName}-${format}`)
     try {
       const data = await api.exportTable(tableName, selectedConnectionId || undefined)
@@ -83,12 +100,28 @@ export default function ExportsPage() {
           <p className="text-gray-400">Export and download your table documentation</p>
         </div>
 
+        {/* Feature Disabled Message */}
+        {showDisabledMessage && FEATURE_DISABLED && (
+          <div className="p-4 rounded-lg mb-6 bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 flex items-center gap-3">
+            <Lock className="w-5 h-5 flex-shrink-0" />
+            <span>This feature is currently unavailable. Please upgrade your plan to access exports.</span>
+          </div>
+        )}
+
+        {/* Success/Error Messages */}
+        {message && (
+          <div className={`p-4 rounded-lg mb-6 ${message.type === 'success' ? 'bg-green-500/20 border border-green-500/50 text-green-200' : 'bg-red-500/20 border border-red-500/50 text-red-200'}`}>
+            {message.text}
+          </div>
+        )}
+
         {/* Database Selector */}
         <div className="mb-8 bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-4">
           <label className="block text-sm font-medium text-gray-400 mb-2">Select Database</label>
           <DatabaseSelector
             selectedConnectionId={selectedConnectionId}
             onSelect={setSelectedConnectionId}
+            disabled={FEATURE_DISABLED}
           />
         </div>
 
