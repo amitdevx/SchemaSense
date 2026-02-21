@@ -1,14 +1,25 @@
-export default function Home() {
+"use client"
+
+import { HeroSection } from "@/components/hero-section"
+import { AnimatedFeaturesSection } from "@/components/animated-features-section"
+import { PricingSection } from "@/components/pricing-section"
+import { FAQSection } from "@/components/faq-section"
+import { AnimatedCTASection } from "@/components/animated-cta-section"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+
+export default function HomePage() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Under Construction
-        </h1>
-        <p className="text-lg text-gray-600">
-          This page is under construction. Check back soon!
-        </p>
-      </div>
-    </div>
-  );
+    <>
+      <Header />
+      <main className="pt-20">
+        <HeroSection />
+        <AnimatedFeaturesSection />
+        <PricingSection />
+        <FAQSection />
+        <AnimatedCTASection />
+      </main>
+      <Footer />
+    </>
+  )
 }
