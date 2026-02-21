@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart3, MessageSquare, Settings, User, CreditCard, Download, Database, LogOut, Menu, X, Activity } from "lucide-react"
+import { BarChart3, MessageSquare, Settings, Download, Database, Menu, X, Activity } from "lucide-react"
 import { useState } from "react"
 import { LeLoLogo } from "./lelo-logo"
 
@@ -47,22 +47,16 @@ const navigationItems = [
 
 const settingsItems = [
   {
-    label: "Profile",
+    label: "Database Settings",
     href: "/dashboard/profile",
-    icon: User,
-    description: "Account info",
+    icon: Database,
+    description: "Manage connections",
   },
   {
     label: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
     description: "Preferences",
-  },
-  {
-    label: "Billing",
-    href: "/dashboard/billing",
-    icon: CreditCard,
-    description: "Subscription",
   },
 ]
 
@@ -71,14 +65,6 @@ export function DashboardSidebar() {
   const [isOpen, setIsOpen] = useState(false)
 
   const isActive = (href: string) => pathname === href
-
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('current_user')
-      window.location.href = '/'
-    }
-  }
 
   return (
     <>
@@ -189,22 +175,15 @@ export function DashboardSidebar() {
 
           {/* User Profile Card */}
           <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                <span className="text-sm font-bold text-white">JD</span>
+                <Database className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">John Doe</p>
-                <p className="text-xs text-gray-400">Free Plan</p>
+                <p className="text-sm font-medium text-white">SchemaSense</p>
+                <p className="text-xs text-gray-400">Database Intelligence</p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300 text-sm"
-            >
-              <LogOut className="w-4 h-4 flex-shrink-0" />
-              <span>Sign Out</span>
-            </button>
           </div>
         </div>
       </aside>

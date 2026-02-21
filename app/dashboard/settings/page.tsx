@@ -3,7 +3,7 @@
 
 import { Breadcrumb } from "@/components/breadcrumb"
 import { Button } from "@/components/ui/button"
-import { Bell, Lock, Database, Loader } from "lucide-react"
+import { Bell, Database, Loader } from "lucide-react"
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api-client"
 
@@ -13,12 +13,10 @@ export default function SettingsPage() {
     slackNotifications: false,
     theme: "dark",
     language: "en",
-    privacyLevel: "private",
     autoSync: true,
     syncInterval: 3600,
   })
   const [saving, setSaving] = useState(false)
-  const [deleting, setDeleting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
 
@@ -66,23 +64,6 @@ export default function SettingsPage() {
     }
   }
 
-  const handleDeleteAccount = async () => {
-    if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) return
-    
-    setDeleting(true)
-    try {
-      // TODO: Implement delete account API call
-      console.log("Deleting account...")
-      await new Promise(resolve => setTimeout(resolve, 500))
-      // Redirect to home after deletion
-      window.location.href = "/"
-    } catch (error) {
-      alert("Failed to delete account")
-    } finally {
-      setDeleting(false)
-    }
-  }
-
   if (isInitialLoading) {
     return (
       <div>
@@ -102,7 +83,7 @@ export default function SettingsPage() {
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-white mb-2">Settings</h1>
-          <p className="text-gray-400">Manage your account, preferences, and integrations</p>
+          <p className="text-gray-400">Manage your preferences and notifications</p>
         </div>
 
           {/* Success/Error Messages */}
@@ -182,13 +163,13 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Database Configuration */}
+            {/* Display Settings */}
             <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-8 hover:border-white/40 transition-all duration-300">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
                   <Database className="w-5 h-5 text-white" />
                 </div>
-                <h2 className="text-xl font-bold text-white">Database Settings</h2>
+                <h2 className="text-xl font-bold text-white">General</h2>
               </div>
 
               <div className="space-y-4">
@@ -223,21 +204,6 @@ export default function SettingsPage() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">
-                    Privacy Level
-                  </label>
-                  <select 
-                    value={settings.privacyLevel}
-                    onChange={(e) => handleChange("privacyLevel", e.target.value)}
-                    className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/40 transition-all"
-                  >
-                    <option value="private">Private</option>
-                    <option value="team">Team</option>
-                    <option value="public">Public</option>
-                  </select>
-                </div>
-
                 <Button 
                   onClick={handleSaveSettings}
                   disabled={saving}
@@ -247,39 +213,6 @@ export default function SettingsPage() {
                   {saving ? "Saving..." : "Save Settings"}
                 </Button>
               </div>
-            </div>
-
-            {/* Security */}
-            <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-8 hover:border-white/40 transition-all duration-300">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                  <Lock className="w-5 h-5 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-white">Security</h2>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-gray-400">Keep your account secure</p>
-                <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 h-12">
-                  Change Password
-                </Button>
-              </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-8">
-              <h2 className="text-xl font-bold text-red-400 mb-4">Danger Zone</h2>
-              <p className="text-gray-400 mb-4">
-                Irreversible actions that require careful consideration
-              </p>
-              <Button 
-                onClick={handleDeleteAccount}
-                disabled={deleting}
-                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400"
-              >
-                {deleting ? <Loader className="w-4 h-4 animate-spin mr-2" /> : null}
-                {deleting ? "Deleting..." : "Delete Account"}
-              </Button>
             </div>
           </div>
       </div>

@@ -164,33 +164,12 @@ export const api = {
       body: { question, connection_id: connectionId || undefined },
     }),
 
-  // Auth
-  register: (name: string, email: string, password: string) =>
-    apiCall('/auth/register', {
-      method: 'POST',
-      body: { name, email, password },
-      includeAuth: false,
-    }),
-
-  login: (email: string, password: string) =>
-    apiCall('/auth/login', {
-      method: 'POST',
-      body: { email, password },
-      includeAuth: false,
-    }),
-
-  getProfile: () => apiCall('/auth/profile'),
-
   // Dashboard
   getDatabases: () => apiCall('/databases'),
   getStatistics: () => apiCall('/statistics'),
   getSyncStatus: () => apiCall('/sync-status'),
   getConnectionStatus: () => apiCall('/connection-status'),
   logout: () => apiCall('/logout', { method: 'POST' }),
-
-  // Profile
-  getProfile: () => apiCall('/profile', { method: 'GET' }),
-  updateProfile: (data: any) => apiCall('/profile', { method: 'PUT', body: data }),
 
   // Settings
   getSettings: () => apiCall('/settings', { method: 'GET' }),
