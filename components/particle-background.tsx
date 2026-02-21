@@ -1,0 +1,125 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import * as THREE from 'three';
+
+const ParticleBackground = () => {
+  const mountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mountRef.current) return;
+
+    const currentMount = mountRef.current;
+
+    const isMobile = window.innerWidth < 768;
+    const isLowEndDevice = navigator.hardwareConcurrency <= 2;
+    const particleCount = isMobile ? (isLowEndDevice ? 100 : 200) : (isLowEndDevice ? 1500 : 5000);
+
+    // Scene
+    const scene = new THREE.Scene();
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(75, currentMount.clientWidth / currentMount.clientHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    // Renderer with optimizations
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: !isMobile && !isLowEndDevice, 
+      alpha: true,
+      powerPreference: isMobile || isLowEndDevice ? 'low-power' : 'high-performance'
+    });
+    renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
+    renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
+    currentMount.appendChild(renderer.domElement);
+
+    // Particles
+    const particles = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount * 3; i++) {
+      positions[i] = (Math.random() - 0.5) * 10;
+    }
+
+    particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const particleMaterial = new THREE.PointsMaterial({
+      size: 0.015,
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.7,
+      blending: THREE.AdditiveBlending,
+    });
+
+    const particleSystem = new THREE.Points(particles, particleMaterial);
+    scene.add(particleSystem);
+    
+    // Mouse
+    const mouse = new THREE.Vector2();
+    const onMouseMove = (event: MouseEvent) => {
+        if (isMobile) return;
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener('mousemove', onMouseMove);
+
+    // Animation
+    const clock = new THREE.Clock();
+    const animate = () => {
+      const elapsedTime = clock.getElapsedTime();
+
+      // Update particles rotation
+      particleSystem.rotation.y = elapsedTime * 0.05;
+      particleSystem.rotation.x = elapsedTime * 0.02;
+
+      const positions = particleSystem.geometry.attributes.position.array as Float32Array;
+      particleSystem.geometry.attributes.position.needsUpdate = true;
+
+
+      // Repel from cursor (only on desktop)
+      if (!isMobile) {
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+        const direction = raycaster.ray.direction.multiplyScalar(10);
+        
+        for (let i = 0; i < particleCount; i++) {
+          const i3 = i * 3;
+          const particlePosition = new THREE.Vector3(positions[i3], positions[i3+1], positions[i3+2]);
+          const distance = particlePosition.distanceTo(direction);
+
+          if (distance < 0.5) {
+              const force = (0.5 - distance) * 0.05;
+              const repel = particlePosition.clone().sub(direction).normalize().multiplyScalar(force);
+              positions[i3] += repel.x;
+              positions[i3+1] += repel.y;
+              positions[i3+2] += repel.z;
+          }
+        }
+      }
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    };
+    animate();
+
+    // Handle Resize
+    const onResize = () => {
+      if (!currentMount) return;
+      camera.aspect = currentMount.clientWidth / currentMount.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
+    };
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('mousemove', onMouseMove);
+      if(currentMount && renderer.domElement) {
+        currentMount.removeChild(renderer.domElement);
+      }
+    };
+  }, []);
+
+  return <div ref={mountRef} className="fixed top-0 left-0 w-full h-full -z-10" />;
+};
+
+export default ParticleBackground;
