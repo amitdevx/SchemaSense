@@ -29,7 +29,7 @@ export default function ExportsPage() {
 
   const handleExport = async (tableName: string, format: 'json' | 'markdown') => {
     if (FEATURE_DISABLED) {
-      setMessage({ type: 'error', text: 'This feature is currently unavailable. Please upgrade your plan.' })
+      setMessage({ type: 'error', text: 'This feature is unavailable in demo mode.' })
       setTimeout(() => setMessage(null), 6000)
       return
     }
@@ -104,7 +104,7 @@ export default function ExportsPage() {
         {showDisabledMessage && FEATURE_DISABLED && (
           <div className="p-4 rounded-lg mb-6 bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 flex items-center gap-3">
             <Lock className="w-5 h-5 flex-shrink-0" />
-            <span>This feature is currently unavailable. Please upgrade your plan to access exports.</span>
+            <span>This feature is unavailable in demo mode.</span>
           </div>
         )}
 

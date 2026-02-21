@@ -35,7 +35,7 @@ export default function IntegrationsPage() {
 
   const handleTestIntegration = async (integrationId: string) => {
     if (FEATURE_DISABLED) {
-      showMessage('error', 'This feature is currently unavailable. Please upgrade your plan.')
+      showMessage('error', 'This feature is unavailable in demo mode.')
       return
     }
     try {
@@ -53,7 +53,7 @@ export default function IntegrationsPage() {
 
   const handleDisconnect = async (integrationId: string) => {
     if (FEATURE_DISABLED) {
-      showMessage('error', 'This feature is currently unavailable. Please upgrade your plan.')
+      showMessage('error', 'This feature is unavailable in demo mode.')
       return
     }
     if (!confirm("Are you sure you want to disconnect this database?")) return
@@ -73,7 +73,7 @@ export default function IntegrationsPage() {
 
   const handleActivate = async (integrationId: string) => {
     if (FEATURE_DISABLED) {
-      showMessage('error', 'This feature is currently unavailable. Please upgrade your plan.')
+      showMessage('error', 'This feature is unavailable in demo mode.')
       return
     }
     try {
@@ -107,7 +107,7 @@ export default function IntegrationsPage() {
         {showDisabledMessage && FEATURE_DISABLED && (
           <div className="p-4 rounded-lg mb-6 bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 flex items-center gap-3">
             <Lock className="w-5 h-5 flex-shrink-0" />
-            <span>This feature is currently unavailable. Please upgrade your plan to access integrations.</span>
+            <span>This feature is unavailable in demo mode.</span>
           </div>
         )}
 
