@@ -15,9 +15,33 @@ export default function ExportsPage() {
   const { data: tablesData, loading } = useTables(selectedConnectionId)
   const [exporting, setExporting] = useState<string | null>(null)
 
-  const handleExport = async (tableName: string, format: 'json' | 'markdown') => {
+  const handleExport = async (tableName: string, format: 'json' | 'markdown' | 'pdf') => {
     setExporting(`${tableName}-${format}`)
     try {
+      if (format === 'pdf') {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+        const connParam = selectedConnectionId ? `?connection_id=${selectedConnectionId}` : ''
+        const res = await fetch(`${baseUrl}/api/export/${tableName}/pdf${connParam}`, {
+          headers: {
+            ...(typeof window !== 'undefined' && localStorage.getItem('auth_token')
+              ? { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
+              : {}),
+          },
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: 'PDF export failed' }))
+          throw new Error(err.detail || 'PDF export failed')
+        }
+        const blob = await res.blob()
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${tableName}_report.pdf`
+        a.click()
+        URL.revokeObjectURL(url)
+        return
+      }
+
       const data = await api.exportTable(tableName, selectedConnectionId || undefined)
       
       let content: string
@@ -110,12 +134,12 @@ export default function ExportsPage() {
             <p className="text-sm text-gray-400">Documentation-ready format</p>
           </div>
 
-          <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 text-left group cursor-default opacity-50">
+          <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 text-left group cursor-default">
             <div className="w-10 h-10 rounded-lg bg-white/10 group-hover:bg-white/20 flex items-center justify-center mb-4 transition-all">
               <File className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-white mb-1">PDF Report</h3>
-            <p className="text-sm text-gray-400">Coming soon</p>
+            <p className="text-sm text-gray-400">Formatted PDF with schema, quality & AI analysis</p>
           </div>
         </div>
 
@@ -169,6 +193,18 @@ export default function ExportsPage() {
                         <Download className="w-4 h-4" />
                       )}
                       MD
+                    </Button>
+                    <Button
+                      onClick={() => handleExport(table, 'pdf')}
+                      disabled={exporting === `${table}-pdf`}
+                      className="bg-white/10 hover:bg-white/20 text-white border border-white/20 gap-2 h-9"
+                    >
+                      {exporting === `${table}-pdf` ? (
+                        <Loader className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <File className="w-4 h-4" />
+                      )}
+                      PDF
                     </Button>
                   </div>
                 </div>
