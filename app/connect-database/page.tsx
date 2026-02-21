@@ -265,6 +265,36 @@ export default function ConnectDatabasePage() {
                   PostgreSQL and SQL Server are fully supported. Snowflake support is coming soon.
                 </p>
               </div>
+
+              {/* Demo Button */}
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-white font-semibold mb-1">🚀 Try with Demo Database</h3>
+                    <p className="text-sm text-gray-400">Instantly connect to our sample PostgreSQL database to explore features</p>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setFormData({
+                        databaseType: "postgresql",
+                        host: "4.240.95.115",
+                        port: "5432",
+                        databaseName: "hackathon_db",
+                        username: "stackops",
+                        password: "demo@123",
+                        schemaFilter: "olist",
+                        connectionTimeout: "30",
+                      })
+                      setStep("credentials")
+                      setShowAdvanced(true)
+                    }}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-6 h-10 flex-shrink-0"
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Try Demo
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 
