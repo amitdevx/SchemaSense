@@ -109,7 +109,7 @@ export function PricingSection() {
                 ))}
               </ul>
 
-              <Link href={plan.name === "Enterprise" ? "/support" : "/sign-up"}>
+              <Link href={plan.name === "Enterprise" ? "/support" : "/connect-database"}>
                 <Button
                   className={`w-full ${
                     plan.popular

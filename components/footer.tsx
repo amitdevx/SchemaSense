@@ -60,13 +60,8 @@ export function Footer() {
             <h3 className="font-semibold text-white mb-4">User</h3>
             <ul className="space-y-2 text-white/70">
               <li>
-                <Link href="/sign-in" className="hover:text-white transition-colors">
-                  Sign In
-                </Link>
-              </li>
-              <li>
-                <Link href="/sign-up" className="hover:text-white transition-colors">
-                  Sign Up
+                <Link href="/connect-database" className="hover:text-white transition-colors">
+                  Connect Database
                 </Link>
               </li>
               <li>

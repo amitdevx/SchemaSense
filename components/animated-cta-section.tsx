@@ -61,9 +61,9 @@ export function AnimatedCTASection() {
             className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
             style={{ animationDelay: "0.9s" }}
           >
-            <Link href="/sign-up">
+            <Link href="/connect-database">
               <Button size="lg" className="bg-white text-black hover:bg-white/90 group">
-                Start Your Free Trial
+                Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>

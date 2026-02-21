@@ -75,7 +75,7 @@ export async function apiCall<T>(
       if (typeof window !== 'undefined') {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('current_user');
-        window.location.href = '/sign-in';
+        window.location.href = '/connect-database';
       }
       throw new ApiError(401, 'Unauthorized - please sign in again');
     }

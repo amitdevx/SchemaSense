@@ -117,7 +117,7 @@ export default function PricingPage() {
                     <Link href={
                       plan.name === "Enterprise" ? "/support" : 
                       plan.name === "Professional" ? "/support" :
-                      "/sign-up"
+                      "/connect-database"
                     }>
                       <Button
                         className={`w-full mb-8 transition-all duration-300 ${

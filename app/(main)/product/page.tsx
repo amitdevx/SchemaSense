@@ -19,7 +19,7 @@ export default function ProductPage() {
               SchemaSense AI connects to enterprise databases, extracts schema metadata, analyzes data quality, and uses AI to generate clear, business-friendly documentation with a conversational chat interface.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/sign-up">
+              <Link href="/connect-database">
                 <Button size="lg" className="bg-white hover:bg-gray-200 text-black group">
                   Get Started Free
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
