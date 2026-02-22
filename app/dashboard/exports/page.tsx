@@ -15,8 +15,11 @@ export default function ExportsPage() {
   const { data: tablesData, loading } = useTables(selectedConnectionId)
   const [exporting, setExporting] = useState<string | null>(null)
 
+  const [exportError, setExportError] = useState<string | null>(null)
+
   const handleExport = async (tableName: string, format: 'json' | 'markdown' | 'pdf') => {
     setExporting(`${tableName}-${format}`)
+    setExportError(null)
     try {
       if (format === 'pdf') {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -90,7 +93,7 @@ export default function ExportsPage() {
       URL.revokeObjectURL(url)
     } catch (err: any) {
       console.error('Export error:', err)
-      alert(err?.message || 'Failed to export. Please try again.')
+      setExportError(err?.message || 'Failed to export. Please try again.')
     } finally {
       setExporting(null)
     }
@@ -115,6 +118,14 @@ export default function ExportsPage() {
             onSelect={setSelectedConnectionId}
           />
         </div>
+
+        {/* Export Error */}
+        {exportError && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-between">
+            <p className="text-red-400 text-sm">{exportError}</p>
+            <button onClick={() => setExportError(null)} className="text-red-400 hover:text-red-300 text-sm ml-4">✕</button>
+          </div>
+        )}
 
         {/* Export Options */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
@@ -212,7 +223,13 @@ export default function ExportsPage() {
             </div>
           ) : (
             <div className="bg-white/5 border border-white/10 rounded-xl p-8 text-center">
-              <p className="text-gray-400">No tables available. Please connect a database first.</p>
+              <p className="text-gray-400 mb-4">No tables available. Connect a database to get started.</p>
+              <a href="/connect-database">
+                <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 gap-2">
+                  <Download className="w-4 h-4" />
+                  Connect Database
+                </Button>
+              </a>
             </div>
           )}
         </div>

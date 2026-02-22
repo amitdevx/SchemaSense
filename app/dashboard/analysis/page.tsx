@@ -127,8 +127,16 @@ export default function AnalysisPage() {
 
         {/* Error State */}
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-between">
             <p className="text-red-400 text-sm">{error}</p>
+            {error.includes('No database connected') && (
+              <Link href="/connect-database">
+                <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 gap-2 h-8 text-xs">
+                  <Database className="w-3 h-3" />
+                  Connect
+                </Button>
+              </Link>
+            )}
           </div>
         )}
 
@@ -215,9 +223,17 @@ export default function AnalysisPage() {
               ) : (
                 <div className="text-center py-12 bg-white/5 border border-white/10 rounded-xl">
                   <Search className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400">
-                    {searchQuery ? "No tables found matching your search" : "No tables available"}
+                  <p className="text-gray-400 mb-4">
+                    {searchQuery ? "No tables found matching your search" : "No tables available. Connect a database to get started."}
                   </p>
+                  {!searchQuery && (
+                    <Link href="/connect-database">
+                      <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 gap-2">
+                        <Database className="w-4 h-4" />
+                        Connect Database
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               )}
             </div>

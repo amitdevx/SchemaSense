@@ -38,10 +38,9 @@ export default function AnalysisTablePage({ params }: TableDetailsPageProps) {
   }, [params])
 
   const { data: qualityData, loading: qualityLoading, error: qualityError } = useDataQuality(tableName, connectionId)
-  const { data: schemaData, loading: schemaLoading } = useTableSchema(tableName, connectionId)
-  const { data: samplesData, loading: samplesLoading } = useSampleData(tableName, 5, connectionId)
-  const { data: explanationData, loading: explanationLoading } = useTableExplanation(tableName, connectionId)
-
+  const { data: schemaData, loading: schemaLoading, error: schemaError } = useTableSchema(tableName, connectionId)
+  const { data: samplesData, loading: samplesLoading, error: samplesError } = useSampleData(tableName, 5, connectionId)
+  const { data: explanationData, loading: explanationLoading, error: explanationError } = useTableExplanation(tableName, connectionId)
   const getMetricColor = (value: number) => {
     if (value >= 90) return "text-green-400"
     if (value >= 75) return "text-blue-400"
@@ -313,6 +312,10 @@ export default function AnalysisTablePage({ params }: TableDetailsPageProps) {
             <h3 className="text-xl font-semibold text-white mb-6">Table Schema</h3>
             {schemaLoading ? (
               <SectionSpinner text="Loading schema..." />
+            ) : schemaError ? (
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <p className="text-red-400 text-sm">{schemaError}</p>
+              </div>
             ) : schemaData?.columns && schemaData.columns.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -358,6 +361,10 @@ export default function AnalysisTablePage({ params }: TableDetailsPageProps) {
             <h3 className="text-xl font-semibold text-white mb-6">Sample Data Preview</h3>
             {samplesLoading ? (
               <SectionSpinner text="Loading sample data..." />
+            ) : samplesError ? (
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <p className="text-red-400 text-sm">{samplesError}</p>
+              </div>
             ) : samplesData?.samples && Array.isArray(samplesData.samples) && samplesData.samples.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -395,6 +402,10 @@ export default function AnalysisTablePage({ params }: TableDetailsPageProps) {
               <div className="flex items-center gap-3 py-6">
                 <Loader className="w-5 h-5 text-white animate-spin" />
                 <span className="text-gray-400">Generating AI analysis...</span>
+              </div>
+            ) : explanationError ? (
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <p className="text-red-400 text-sm">{explanationError}</p>
               </div>
             ) : explanationData?.business_explanation ? (
               <MarkdownRenderer content={explanationData.business_explanation} className="text-gray-300" />

@@ -67,8 +67,15 @@ export default function ChatPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-between">
             <p className="text-red-400 text-sm">{error}</p>
+            {error.includes('No database connected') && (
+              <Link href="/connect-database">
+                <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 gap-2 h-8 text-xs ml-4">
+                  Connect Database
+                </Button>
+              </Link>
+            )}
           </div>
         )}
 

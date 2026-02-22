@@ -77,6 +77,9 @@ export function useChat() {
       if (!response.ok) {
         const errData = await response.json().catch(() => null);
         const detail = errData?.detail || `Server error (${response.status})`;
+        if (response.status === 400 && detail.includes('No database connected')) {
+          throw new Error('No database connected. Please connect a database from the Integrations page first.');
+        }
         throw new Error(detail);
       }
 

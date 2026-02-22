@@ -70,14 +70,12 @@ export async function apiCall<T>(
   try {
     const response = await fetch(url, requestConfig);
 
-    // Handle 401 - redirect to login
+    // Handle 401 - redirect to connect-database
     if (response.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('current_user');
         window.location.href = '/connect-database';
       }
-      throw new ApiError(401, 'Unauthorized - please sign in again');
+      throw new ApiError(401, 'Session expired — please reconnect your database');
     }
 
     let data: any;
