@@ -8,6 +8,7 @@ import { Database, Settings, Trash2, CheckCircle2, AlertCircle, Clock, Plus, Loa
 import { useConnections } from "@/hooks/useDashboard"
 import { useState, useRef, useCallback } from "react"
 import { api } from "@/lib/api-client"
+import { formatIST } from "@/lib/utils"
 
 export default function IntegrationsPage() {
   const { data: allConnections, activeId, loading, refetch, activateConnection, removeConnection } = useConnections()
@@ -112,7 +113,7 @@ export default function IntegrationsPage() {
                         {conn.connected_at && (
                           <p className="text-xs text-gray-500 mt-1">
                             <Clock className="w-3 h-3 inline mr-1" />
-                            Connected: {new Date(conn.connected_at).toLocaleString()}
+                            Connected: {formatIST(conn.connected_at)}
                           </p>
                         )}
                       </div>

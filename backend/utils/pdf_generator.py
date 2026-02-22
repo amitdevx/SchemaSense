@@ -4,7 +4,7 @@ Uses fpdf2 to build a styled PDF from schema, quality, and AI analysis data.
 """
 import io
 import re
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from fpdf import FPDF
 
 
@@ -44,7 +44,7 @@ def generate_table_pdf(table_name: str, schema_info, quality, business_context: 
     pdf.cell(0, 14, _sanitize(f"{table_name}"), ln=True)
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 6, f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", ln=True)
+    pdf.cell(0, 6, f"Generated: {datetime.now(timezone(timedelta(hours=5, minutes=30))).strftime('%Y-%m-%d %H:%M IST')}", ln=True)
     pdf.ln(6)
 
     # ── Table Structure ──────────────────────────────────────────────────

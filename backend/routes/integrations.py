@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException
 from typing import Optional, List
 from pydantic import BaseModel
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import logging
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ async def list_integrations():
             "port": conn_data["port"],
             "database": conn_data["database"],
             "status": status,
-            "lastSync": conn_data.get("connected_at", datetime.now().isoformat()),
+            "lastSync": conn_data.get("connected_at", datetime.now(timezone(timedelta(hours=5, minutes=30))).isoformat()),
             "tableCount": table_count or 0,
             "schema_filter": conn_data.get("schema_filter", "public"),
             "is_active": (cid == conn_module.active_connection_id)

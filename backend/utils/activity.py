@@ -3,7 +3,7 @@ Activity tracking module for SchemaSense.
 Tracks database connections, analyses, chats, and other user activities in-memory.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 from pydantic import BaseModel
 from enum import Enum
@@ -60,7 +60,7 @@ def log_activity(
         "type": activity_type.value,
         "title": title,
         "description": description,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone(timedelta(hours=5, minutes=30))).isoformat(),
         "metadata": metadata,
     }
     _activities.append(activity)

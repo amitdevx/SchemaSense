@@ -6,7 +6,7 @@ from utils.deepseek_client import deepseek_client
 from utils.schema_queries import get_sample_query, get_count_query, get_count_alias_query, get_null_stats_query
 from utils.cache_db import get_cached_explanation, store_explanation
 from utils.activity import log_activity, ActivityType
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import logging
 
 logger = logging.getLogger(__name__)
@@ -255,7 +255,7 @@ async def explain_table(table_name: str, connection_id: Optional[str] = None):
                 return TableExplanation(
                     table_name=table_name,
                     business_explanation=cached,
-                    timestamp=datetime.utcnow()
+                    timestamp=datetime.now(timezone(timedelta(hours=5, minutes=30)))
                 )
         
         # Cache miss — call AI
@@ -289,7 +289,7 @@ async def explain_table(table_name: str, connection_id: Optional[str] = None):
         return TableExplanation(
             table_name=table_name,
             business_explanation=explanation,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(timezone(timedelta(hours=5, minutes=30)))
         )
     except HTTPException:
         raise

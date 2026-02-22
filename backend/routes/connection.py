@@ -4,7 +4,7 @@ import asyncpg
 import logging
 import uuid
 from typing import Dict, Optional, List
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from utils.activity import log_activity, ActivityType
 
 logger = logging.getLogger(__name__)
@@ -207,7 +207,7 @@ async def connect_database(request: ConnectionRequest, response: Response):
             "schema_filter": schema_filter,
             "pool": pool,
             "name": conn_name,
-            "connected_at": datetime.utcnow().isoformat(),
+            "connected_at": datetime.now(timezone(timedelta(hours=5, minutes=30))).isoformat(),
             "version": version[:50] if version else "Unknown",
             "database_type": request.database_type,
         }

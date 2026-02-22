@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Database, Settings, MessageSquare, FileText, BarChart3, Plus, Clock, ArrowRight, Download, Loader, Trash2, CheckCircle, Activity } from "lucide-react"
 import { useStatistics, useConnectionInfo, useConnections, useRecentActivity } from "@/hooks/useDashboard"
 import { useState, useRef, useCallback } from "react"
+import { formatIST, formatISTTime } from "@/lib/utils"
 
 export default function DashboardPage() {
   const { data: stats, loading: statsLoading } = useStatistics()
@@ -212,7 +213,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
                       <div className="flex items-center gap-2 text-sm text-gray-400">
                         <Clock className="w-4 h-4" />
-                        Connected: {conn.connected_at ? new Date(conn.connected_at).toLocaleString() : 'just now'}
+                        Connected: {conn.connected_at ? formatIST(conn.connected_at) : 'just now'}
                       </div>
                       <Link href="/dashboard/analysis">
                         <Button variant="ghost" className="text-white/70 hover:text-white gap-2 h-8">
@@ -306,7 +307,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
                           <Clock className="w-3 h-3" />
-                          {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {formatISTTime(item.timestamp)}
                         </div>
                       </div>
                     </div>

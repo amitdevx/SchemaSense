@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { api } from '@/lib/api-client';
+import { formatISTTime } from '@/lib/utils';
 
 export interface ChatMessage {
   id: number;
@@ -26,7 +27,7 @@ export function useChat() {
       id: 1,
       text: "Hi! I'm SchemaSense AI. I can help you understand your database schema. Ask me anything about your tables, relationships, or data!",
       sender: 'ai',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: formatISTTime(new Date()),
     },
   ]);
   const [loading, setLoading] = useState(false);
@@ -41,7 +42,7 @@ export function useChat() {
       id: messages.length + 1,
       text: question,
       sender: 'user',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: formatISTTime(new Date()),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -55,7 +56,7 @@ export function useChat() {
       id: aiMessageId,
       text: '',
       sender: 'ai',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: formatISTTime(new Date()),
       isStreaming: true,
     };
 
@@ -148,7 +149,7 @@ export function useChat() {
         id: aiMessageId,
         text: `Error: ${errorMsg}`,
         sender: 'ai',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: formatISTTime(new Date()),
       };
 
       setMessages((prev) => [...prev, errorMessage]);
@@ -165,7 +166,7 @@ export function useChat() {
         id: 1,
         text: "Hi! I'm SchemaSense AI. I can help you understand your database schema. Ask me anything about your tables, relationships, or data!",
         sender: 'ai',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: formatISTTime(new Date()),
       },
     ]);
   };

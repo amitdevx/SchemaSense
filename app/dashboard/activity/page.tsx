@@ -3,6 +3,7 @@
 import { Breadcrumb } from "@/components/breadcrumb"
 import { useRecentActivity } from "@/hooks/useDashboard"
 import { Database, MessageSquare, BarChart3, Download, CheckCircle, Clock, Activity, Loader } from "lucide-react"
+import { formatIST } from "@/lib/utils"
 
 export default function ActivityPage() {
   const { data: activities, loading } = useRecentActivity(50)
@@ -64,7 +65,7 @@ export default function ActivityPage() {
                 </div>
                 <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
                   <Clock className="w-3 h-3" />
-                  {new Date(item.timestamp).toLocaleString()}
+                  {formatIST(item.timestamp)}
                 </div>
               </div>
             </div>

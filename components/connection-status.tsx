@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { CheckCircle } from "lucide-react"
 import { api } from "@/lib/api-client"
+import { formatIST } from "@/lib/utils"
 
 export function ConnectionStatus() {
   const [status, setStatus] = useState<any>(null)
@@ -76,7 +77,7 @@ export function ConnectionStatus() {
             )}
           </div>
           {status?.lastSync && (
-            <p className="text-xs opacity-75 mt-1">Last synced: {new Date(status.lastSync).toLocaleString()}</p>
+            <p className="text-xs opacity-75 mt-1">Last synced: {formatIST(status.lastSync)}</p>
           )}
         </div>
       </div>

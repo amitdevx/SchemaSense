@@ -9,6 +9,7 @@ import { useTables } from "@/hooks/useDatabase"
 import { useConnections } from "@/hooks/useDashboard"
 import { DatabaseSelector } from "@/components/database-selector"
 import { api } from "@/lib/api-client"
+import { formatIST } from "@/lib/utils"
 
 export default function ExportsPage() {
   const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null)
@@ -57,7 +58,7 @@ export default function ExportsPage() {
         // Generate markdown
         const md = [
           `# ${data.table_name} Schema Documentation`,
-          `Generated: ${new Date(data.generated_at).toLocaleString()}`,
+          `Generated: ${formatIST(data.generated_at)}`,
           '',
           '## Table Structure',
           `**Row Count:** ${data.schema?.row_count || 0}`,

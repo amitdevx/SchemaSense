@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from schemas import ChatRequest, ChatResponse
 from routes.connection import get_user_db, get_db_pool, get_schema_filter_for
@@ -56,7 +56,7 @@ async def chat_with_schema(request: ChatRequestWithConnection):
         return ChatResponse(
             question=request.question,
             answer=answer,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(timezone(timedelta(hours=5, minutes=30)))
         )
     except HTTPException:
         raise

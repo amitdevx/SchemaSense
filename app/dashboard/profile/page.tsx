@@ -6,6 +6,7 @@ import { Database, Server, Hash, User, Key, Filter, Loader, RefreshCw, Trash2 } 
 import { useState } from "react"
 import { useConnections, ConnectionItem } from "@/hooks/useDashboard"
 import Link from "next/link"
+import { formatISTDate } from "@/lib/utils"
 
 export default function DatabaseSettingsPage() {
   const { data: connections, activeId, loading, refetch, activateConnection, removeConnection } = useConnections()
@@ -104,7 +105,7 @@ export default function DatabaseSettingsPage() {
                   <div>
                     <h3 className="text-lg font-bold text-white">{conn.database}</h3>
                     <p className="text-sm text-gray-400">
-                      {conn.database_type || "postgresql"} • Connected {new Date(conn.connected_at).toLocaleDateString()}
+                      {conn.database_type || "postgresql"} • Connected {formatISTDate(conn.connected_at)}
                     </p>
                   </div>
                   {conn.id === activeId && (

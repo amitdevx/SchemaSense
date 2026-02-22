@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from schemas import ExportResponse
 from routes.connection import get_user_db, get_db_pool, get_schema_filter_for
@@ -36,7 +36,7 @@ async def export_documentation(table_name: str, connection_id: Optional[str] = N
         
         # Build comprehensive export
         return ExportResponse(
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone(timedelta(hours=5, minutes=30))),
             table_name=table_name,
             schema={
                 "columns": [
