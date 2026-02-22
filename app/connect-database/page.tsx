@@ -159,6 +159,29 @@ export default function ConnectDatabasePage() {
 
       const data = await response.json()
 
+      if (response.status === 409) {
+        // Already connected — extract connection ID and activate it
+        const match = data.detail?.match(/ID:\s*([a-f0-9-]+)/i)
+        if (match) {
+          try {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/connections/${match[1]}/activate`, { method: 'POST' })
+          } catch {}
+        }
+        // Store connection info and go to dashboard
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('dbConnection', JSON.stringify({
+            host: formData.host,
+            database: formData.databaseName,
+            connected: true,
+            connection_id: match?.[1] || '',
+          }))
+        }
+        setIsLoading(false)
+        setProgressState(null)
+        router.push("/dashboard")
+        return
+      }
+
       if (!response.ok) {
         throw new Error(data.detail || 'Connection failed')
       }
