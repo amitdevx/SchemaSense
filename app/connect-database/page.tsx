@@ -291,21 +291,21 @@ export default function ConnectDatabasePage() {
 
               {/* Demo Button */}
               <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-5">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-white font-semibold mb-1">🚀 Try with Demo Database</h3>
-                    <p className="text-sm text-gray-400">Instantly connect to our sample PostgreSQL database to explore features</p>
+                    <h3 className="text-white font-semibold mb-1">Try with Demo Database</h3>
+                    <p className="text-sm text-gray-400">Instantly connect to our pre-loaded PostgreSQL demo databases</p>
                   </div>
                   <Button
                     onClick={() => {
                       setFormData({
                         databaseType: "postgresql",
-                        host: "4.240.95.115",
+                        host: "127.0.0.1",
                         port: "5432",
-                        databaseName: "hackathon_db",
-                        username: "stackops",
+                        databaseName: "college_management",
+                        username: "sales_admin",
                         password: "demo@123",
-                        schemaFilter: "olist",
+                        schemaFilter: "public",
                         connectionTimeout: "30",
                       })
                       setStep("credentials")
@@ -314,8 +314,42 @@ export default function ConnectDatabasePage() {
                     className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-6 h-10 flex-shrink-0"
                   >
                     <Zap className="w-4 h-4 mr-2" />
-                    Try Demo
+                    Try Demo (College)
                   </Button>
+                </div>
+                {/* Quick Selection Pills */}
+                <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-white/10">
+                  <span className="text-xs text-gray-400 mr-1">Other Demos:</span>
+                  {[
+                    { label: "College Mgmt", db: "college_management" },
+                    { label: "E-Commerce", db: "ecommerce_demo" },
+                    { label: "Library", db: "library_demo" },
+                    { label: "Inventory", db: "inventory_demo" },
+                    { label: "University", db: "university_academics" },
+                    { label: "Hospital", db: "hospital_demo" },
+                  ].map((d) => (
+                    <button
+                      key={d.db}
+                      type="button"
+                      onClick={() => {
+                        setFormData({
+                          databaseType: "postgresql",
+                          host: "127.0.0.1",
+                          port: "5432",
+                          databaseName: d.db,
+                          username: "sales_admin",
+                          password: "demo@123",
+                          schemaFilter: "public",
+                          connectionTimeout: "30",
+                        })
+                        setStep("credentials")
+                        setShowAdvanced(true)
+                      }}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white transition-all border border-white/10"
+                    >
+                      {d.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -324,7 +358,7 @@ export default function ConnectDatabasePage() {
           {/* Step 2: Credentials */}
           {step === "credentials" && (
             <div className="space-y-8">
-              <div className="text-center mb-12">
+              <div className="text-center mb-6">
                 <button
                   onClick={() => setStep("selection")}
                   className="text-gray-400 hover:text-white text-sm mb-6 transition-colors inline-flex items-center gap-1"
@@ -337,6 +371,50 @@ export default function ConnectDatabasePage() {
                 <p className="text-gray-300">
                   We only need read-only access to your database
                 </p>
+              </div>
+
+              {/* Demo Quick Select Presets on Credentials Screen */}
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-blue-300 flex items-center gap-1">
+                    <Zap className="w-3.5 h-3.5 text-blue-400" /> One-Click Demo Presets:
+                  </span>
+                  <span className="text-[11px] text-gray-400">Loads local demo credentials automatically</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: "College Management", db: "college_management" },
+                    { label: "E-Commerce", db: "ecommerce_demo" },
+                    { label: "Library", db: "library_demo" },
+                    { label: "Inventory", db: "inventory_demo" },
+                    { label: "University", db: "university_academics" },
+                    { label: "Hospital", db: "hospital_demo" },
+                  ].map((d) => (
+                    <button
+                      key={d.db}
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          databaseType: "postgresql",
+                          host: "127.0.0.1",
+                          port: "5432",
+                          databaseName: d.db,
+                          username: "sales_admin",
+                          password: "demo@123",
+                          schemaFilter: "public",
+                        }))
+                      }}
+                      className={`text-xs px-3 py-1.5 rounded-lg transition-all border ${
+                        formData.databaseName === d.db
+                          ? "bg-blue-600 text-white border-blue-400 font-semibold shadow-sm"
+                          : "bg-white/5 hover:bg-white/10 text-gray-300 border-white/10"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">

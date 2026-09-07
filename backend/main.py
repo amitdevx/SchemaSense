@@ -37,6 +37,11 @@ async def lifespan(app: FastAPI):
     logger.info(f"Binding to {settings.API_HOST}:{settings.API_PORT}")
     await init_cache()
     await init_chat_cache()
+    try:
+        await db.connect()
+        logger.info("Application database connected")
+    except Exception as e:
+        logger.error(f"Failed to connect application database: {e}")
     logger.info("Backend ready! (Database connection will be established per user via /api/connect-db)")
     
     yield
